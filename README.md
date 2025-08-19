@@ -11,22 +11,31 @@ The system allows the user to **record or upload a heartbeat audio signal (WAV)*
 
 ---
 
-## 🔹 Project Structure
+## Project Structure
 
-├── android/ # Android Studio project (app source)
-├── serverr.py # Python  server
-├── model.pth # Trained PyTorch model
-├── requirements.txt # Python dependencies
-├── docker-compose.yml # Docker services for local dev
-├── Dockerfile # API container build
-├── apache/
-│ └── heartbeat.conf # Apache virtual host & reverse proxy
-└── README.md
+heart-app/
+├── klient/
+│ └── HeartbeatClassifier/ # Android application 
+├── streznik/
+│ ├── apache/ # Apache configuration (for reverse proxy)
+│ │ ├── httpd.conf
+│ │ └── zz-heart-app.conf
+│ ├── app/
+│ │ ├── AutomaticHeartSoundClassification/ # classification model (PyTorch)
+│ │ ├── serverr.py # main server 
+│ │ ├── Dockerfile # Docker configuration za 
+│ │ ├── find_threshold.py # script for dedicating the classification threshold
+│ │ ├── requirements.txt 
+│ │ ├── threshold.json 
+│ │ ├── spectrograms/ # Genearted  Mel-spektrogram pictures
+│ │ └── uploads/ # WAV files
+│ └── docker-compose.yml # Docker startup for the entire system
+├── README.md
 
 
 ---
 
-## ⚙️ Requirements
+## Requirements
 
 - **Python 3.9+**
 - **pip / virtualenv**
@@ -36,7 +45,7 @@ The system allows the user to **record or upload a heartbeat audio signal (WAV)*
 
 ---
 
-## 🚀 Installation & Setup
+## Installation & Setup
 
 ### 1. Production Setup (University VM – recommended)
 The project is deployed at:
@@ -47,7 +56,7 @@ Steps to set up on a new server (without Docker):
 
 ```bash
 # Clone the project
-git clone <repo_url>
+git clone https://github.com/Anns2209/heart-app.git
 cd heart-app/streznik/app
 
 # Create venv and install dependencies
@@ -55,12 +64,31 @@ python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 
-# Place the trained model
-mkdir models
-cp model.pth models/model.pth
 
 # Run the server
 python serverr.py
+
+#if it is successfull you will get a message: Strežnik teče na portu 5012…
+
+#test the server locally:
+curl -X POST -F "file=@a0001.wav" http://127.0.0.1:5012/classify
+
+
+#open android studio and start the application
+
+
+###  Apache Reverse Proxy Configuration
+
+The Apache configuration files (httpd.conf and zz-heart-app.conf) are included in the streznik/apache/ folder.
+To enable the reverse proxy, follow these steps:
+# Copy or edit the config file
+sudo nano /etc/httpd/conf.d/zz-heart-app.conf
+
+# Restart Apache service
+sudo systemctl restart httpd
+
+# (Optional) If Apache is not running:
+sudo systemctl start httpd
 
 
 
@@ -75,19 +103,49 @@ docker compose up -d
 API will be available at:
 http://localhost:5012/
 
+{"status": "OK"}
+
+
+
+### Android Application
+
+- **Package:** `com.example.heartbeatclassifier`
+- **Features:**
+  - Record or select WAV audio
+  - Upload to server (`/api/predict`)
+  - Display classification result (normal / abnormal)
+  - Show spectrogram image (if returned by API)
+
+### Base URL Configuration
+- **Production:** `http://164.8.67.103/api/`
+- **Local Dev:** `http://10.0.2.2:5012/` (emulator → localhost)
+
+The app uses `BuildConfig.BASE_URL` via Gradle product flavors.  
+Simply switch between `devDebug` and `prodDebug` variants in Android Studio.
+
+### Permissions (in `AndroidManifest.xml`)
+```xml
+<uses-permission android:name="android.permission.RECORD_AUDIO"/>
+<uses-permission android:name="android.permission.INTERNET"/>
+<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
 
 
 
- Model Training
+---
 
-Based on: AutomaticHeartSoundClassification
-Input: Log-Mel spectrograms
-Model: CRNN (3 input channels, 2 output classes)
-Dataset: .wav files + label.csv
-Training script: adapted from repository, saved as model.pth
+###  Model Training
+
+
+- **Base repo:** [AutomaticHeartSoundClassification](https://github.com/SiyuLou/AutomaticHeartSoundClassification)
+- **Input:** Log-Mel spectrograms
+- **Model:** CRNN (3 input channels, 2 output classes)
+- **Dataset:** `.wav` files + `label.csv`
+- **Training script:** `train.py` (adapted)
+- **Saved weights:** `model.pth` (copied into models/)
+
 To retrain:
+```bash
 python train.py --config config_crnn.json
-Then copy the new model.pth into models/.
 
 
