@@ -1,0 +1,56 @@
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: heart-app-db
+    environment:
+      MYSQL_DATABASE: heart_app
+      MYSQL_USER: heart_user
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: rootpass
+    ports:                      
+        - "3306:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-prootpass"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+    networks: [heartnet]
+
+  app:
+    build: ./app
+    container_name: heart-app-backend
+    expose: ["5012"]
+    ports:
+      - "5012:5012" 
+    environment:
+      DB_HOST: db
+      DB_USER: heart_user
+      DB_PASSWORD: password
+      DB_NAME: heart_app
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [heartnet]
+
+
+  httpd:
+    image: httpd:2.4
+    container_name: heart-app-proxy
+    depends_on: [app]
+    ports:
+      - "80:80"
+    volumes:
+      - ./apache/httpd.conf:/usr/local/apache2/conf/httpd.conf:ro
+      - ./apache/zz-heart-app.conf:/usr/local/apache2/conf/extra/zz-heart-app.conf:ro
+    networks: [heartnet]
+
+networks:
+  heartnet:
+    driver: bridge
+
+volumes:
+  dbdata:
+

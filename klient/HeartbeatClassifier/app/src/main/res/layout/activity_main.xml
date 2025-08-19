@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:gravity="center"
+    android:background="@drawable/background_gradient">
+
+
+    <TextView
+        android:id="@+id/resultTextView"
+        android:layout_width="432dp"
+        android:layout_height="141dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/result_background"
+        android:elevation="4dp"
+        android:gravity="center"
+        android:padding="16dp"
+        android:text="Rezultat se bo prikazal tukaj"
+        android:textColor="@android:color/holo_red_dark"
+        android:textSize="20sp" />
+
+    <ImageView
+        android:id="@+id/resultIcon"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="12dp"
+        android:layout_gravity="center"
+        android:visibility="gone"/>
+
+    <ImageView
+        android:id="@+id/spectrogramImage"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_marginTop="16dp"
+        android:visibility="gone"
+        android:scaleType="centerInside"
+        android:contentDescription="Mel spektrogram" />
+
+
+    <Button
+        android:id="@+id/selectButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:backgroundTint="#E71E11"
+        android:text="📁 Izberi WAV datoteko"
+        android:textColor="#FFFFFF" />
+
+    <Button
+        android:id="@+id/recordButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="🎙️Snemaj"
+        android:backgroundTint="#E71E11"
+        android:textColor="#FFFFFF" />
+
+    <Button
+        android:id="@+id/btnHistory"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="📈 Zgodovina meritev"
+        android:layout_marginTop="12dp"
+        android:backgroundTint="#E71E11"/>
+
+
+
+
+
+
+</LinearLayout>
+
+
