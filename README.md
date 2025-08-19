@@ -92,7 +92,7 @@ sudo systemctl start httpd
 
 
 
-2. Local Development (with Docker)
+### 2. Local deployment (with Docker)
 
 
 For testing on localhost:
